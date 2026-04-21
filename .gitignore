@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+dist/
+web-build/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# iOS
+ios/
+*.xcworkspace
+*.xcodeproj
+Pods/
+
+# Android
+android/
+*.apk
+*.aab
+
+# Env
+.env
+.env.local
+.env.production
+
+# Credentials
+credentials.json
+token.json
+
+# Temp
+.tmp/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.swp
+*.swo

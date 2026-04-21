@@ -1,0 +1,48 @@
+{
+  "expo": {
+    "name": "VoceSpesa",
+    "slug": "vocespesa",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "vocespesa",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0E21"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.vocespesa.app",
+      "infoPlist": {
+        "NSSpeechRecognitionUsageDescription": "VoceSpesa usa il riconoscimento vocale per registrare le tue spese parlando.",
+        "NSMicrophoneUsageDescription": "VoceSpesa ha bisogno del microfono per il riconoscimento vocale delle spese."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0A0E21"
+      },
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "RECORD_AUDIO"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
