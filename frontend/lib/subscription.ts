@@ -110,17 +110,22 @@ export async function canAddExpense(): Promise<{
   maxCount?: number;
 }> {
   if (isPro()) return { allowed: true };
-  const count = await getMonthlyExpenseCount();
-  const max = TIER_LIMITS.free.maxExpensesPerMonth;
-  if (count >= max) {
-    return {
-      allowed: false,
-      reason: `Hai raggiunto il limite di ${max} spese questo mese. Passa a Pro per spese illimitate!`,
-      currentCount: count,
-      maxCount: max,
-    };
+  try {
+    const count = await getMonthlyExpenseCount();
+    const max = TIER_LIMITS.free.maxExpensesPerMonth;
+    if (count >= max) {
+      return {
+        allowed: false,
+        reason: `Hai raggiunto il limite di ${max} spese questo mese. Passa a Pro per spese illimitate!`,
+        currentCount: count,
+        maxCount: max,
+      };
+    }
+    return { allowed: true, currentCount: count, maxCount: max };
+  } catch {
+    // Database non ancora inizializzato — permettiamo l'operazione
+    return { allowed: true };
   }
-  return { allowed: true, currentCount: count, maxCount: max };
 }
 
 /**

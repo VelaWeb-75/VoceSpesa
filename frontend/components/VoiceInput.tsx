@@ -30,6 +30,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
   const { addNewExpense } = useExpenses();
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
+  const [manualInput, setManualInput] = useState('');
+  const [isProcessed, setIsProcessed] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
@@ -84,9 +86,11 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
 
     // Su web/Expo Go simuliamo con input manuale
     if (Platform.OS === 'web') {
-      // Simula input vocale con prompt
+      // Fallback manuale su web
       setShowConfirm(true);
       setTranscript('');
+      setManualInput('');
+      setIsProcessed(false);
       setAmount('');
       setDescription('');
       setSuggestions([]);
@@ -136,6 +140,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
         setIsListening(false);
         setShowConfirm(true);
         setTranscript('');
+        setManualInput('');
+        setIsProcessed(false);
         setAmount('');
         setDescription('');
         setSuggestions([]);
@@ -149,6 +155,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
 
   const processTranscript = (text: string) => {
     const result = parseVoiceInput(text);
+    setTranscript(text);
+    setIsProcessed(true);
     setAmount(result.parsed.amount?.toString() ?? '');
     setDescription(result.parsed.description);
     setSuggestions(result.suggestions);
@@ -157,8 +165,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
   };
 
   const handleManualProcess = () => {
-    if (transcript.trim()) {
-      processTranscript(transcript);
+    if (manualInput.trim()) {
+      processTranscript(manualInput);
     }
   };
 
@@ -178,6 +186,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
 
     setShowConfirm(false);
     setTranscript('');
+    setManualInput('');
+    setIsProcessed(false);
     setAmount('');
     setDescription('');
     setSuggestions([]);
@@ -241,8 +251,8 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Nuova Spesa</Text>
 
-            {/* Input testo vocale (se fallback) */}
-            {!transcript && (
+            {/* Input testo vocale (se fallback manuale) */}
+            {!isProcessed && (
               <View style={styles.inputGroup}>
                 <Text style={styles.inputLabel}>Descrivi la spesa a parole</Text>
                 <View style={styles.transcriptInputRow}>
@@ -250,21 +260,40 @@ export default function VoiceInput({ onPaywallNeeded }: VoiceInputProps) {
                     style={[styles.input, { flex: 1 }]}
                     placeholder="es. Ho speso 35 euro dal meccanico"
                     placeholderTextColor={Colors.textTertiary}
-                    value={transcript}
-                    onChangeText={setTranscript}
+                    value={manualInput}
+                    onChangeText={setManualInput}
+                    onSubmitEditing={handleManualProcess}
+                    returnKeyType="done"
                     autoFocus
                   />
-                  <TouchableOpacity style={styles.processButton} onPress={handleManualProcess}>
+                  <TouchableOpacity
+                    style={[styles.processButton, !manualInput.trim() && { opacity: 0.4 }]}
+                    onPress={handleManualProcess}
+                    disabled={!manualInput.trim()}
+                  >
                     <Text style={styles.processButtonText}>→</Text>
                   </TouchableOpacity>
                 </View>
               </View>
             )}
 
-            {transcript ? (
+            {isProcessed && transcript ? (
               <View style={styles.transcriptBox}>
                 <Text style={styles.transcriptLabel}>Hai detto:</Text>
                 <Text style={styles.transcriptText}>"{transcript}"</Text>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => {
+                    setManualInput(transcript);
+                    setIsProcessed(false);
+                    setAmount('');
+                    setDescription('');
+                    setSuggestions([]);
+                    setSelectedCategoryId(null);
+                  }}
+                >
+                  <Text style={styles.editButtonText}>✏️ Modifica</Text>
+                </TouchableOpacity>
               </View>
             ) : null}
 
@@ -427,6 +456,17 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.lg,
     color: Colors.primaryLight,
     fontStyle: 'italic',
+  },
+  editButton: {
+    alignSelf: 'flex-end',
+    marginTop: Spacing.sm,
+    paddingVertical: 4,
+    paddingHorizontal: Spacing.sm,
+  },
+  editButtonText: {
+    fontFamily: Fonts.body,
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
   },
   inputGroup: {
     marginBottom: Spacing.md,
